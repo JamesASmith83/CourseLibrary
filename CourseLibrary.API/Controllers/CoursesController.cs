@@ -34,7 +34,7 @@ namespace CourseLibrary.API.Controllers
             return Ok(_mapper.Map<IEnumerable<CourseDto>>(coursesForAuthorFromRepo));
         }
 
-        [HttpGet("{courseId}", Name ="GetCourseForAuthor")]
+        [HttpGet("{courseId}", Name = "GetCourseForAuthor")]
         public ActionResult<CourseDto> GetCourseForAuthor(Guid authorId, Guid courseId)
         {
             if (!_courseLibraryRepository.AuthorExists(authorId))
@@ -44,19 +44,19 @@ namespace CourseLibrary.API.Controllers
 
             var courseForAuthorFromRepo = _courseLibraryRepository.GetCourse(authorId, courseId);
 
-            if(courseForAuthorFromRepo == null)
+            if (courseForAuthorFromRepo == null)
             {
                 return NotFound();
             }
 
             return Ok(_mapper.Map<CourseDto>(courseForAuthorFromRepo));
-        }    
-        
+        }
+
         [HttpPost]
         public ActionResult<CourseDto> CreateCourseForAuthor(
             Guid authorId, CourseForCreationDto course)
         {
-            if(!_courseLibraryRepository.AuthorExists(authorId))
+            if (!_courseLibraryRepository.AuthorExists(authorId))
             {
                 return NotFound();
             }
@@ -69,6 +69,29 @@ namespace CourseLibrary.API.Controllers
 
             return CreatedAtRoute("GetCourseForAuthor",
                 new { authorId = authorId, courseId = courseToReturn.Id }, courseToReturn);
+        }
+
+        [HttpPut("{CourseId}")]
+        public ActionResult UpdateCourseForAuthor(Guid authorId, Guid courseId, CourseForUpdateDto course)
+        {
+            if(!_courseLibraryRepository.AuthorExists(authorId))
+            {
+                return NotFound();
+            }
+
+            var courseForAuthorFromRepo = _courseLibraryRepository.GetCourse(authorId, courseId);
+
+            if(courseForAuthorFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            // map the entity to a CourseForUpdateDto
+            // apply the updated field values to that dto
+            // map the CourseForUpateDto back to an entity
+            _mapper.Map(course, courseForAuthorFromRepo);
+
+            _courseLibraryRepository.UpdateCourse(courseForAuthorFromRepo);
         }
     }
 }
